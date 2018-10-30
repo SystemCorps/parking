@@ -27,18 +27,16 @@ def WheelSpeed(lifo):
 
     rec.close()
 
-
-def test(q, lifo2):
+"""
+def test(q):
     testing = 1
     while(True):
 
         testing = testing+1
         time.sleep(0.01)
         print(testing)
-
-        if lifo2.get() == True:
-            q.put(testing)
-
+        q.put(testing)
+"""
 
 class MyManager(BaseManager):
     pass
@@ -54,21 +52,22 @@ if __name__ == '__main__':
     # For calculating FPS
     prevTime = 0
 
-    # For IMU data reading (multiprocess)
-    #proc = Process(target=WheelSpeed, args=[])
-    #proc.start()
+
     manager = MyManager()
     manager.start()
     lifo = manager.LifoQueue()
-    lifo2 = manager.LifoQueue(1)
 
-    testp = Process(target=test, args=[lifo, lifo2, ])
-    testp.start()
+    # For IMU data reading (multiprocess)
+    proc = Process(target=WheelSpeed, args=[lifo, ])
+    proc.start()
+
+
+    #testp = Process(target=test, args=[lifo, ])
+    #testp.start()
     # Video capture & IMU reading loop
     while(True):
         # Read image
         ret, frame = cap.read()
-        lifo2.put(True)
 
         # For FPS
         curTime = time.time()
@@ -99,8 +98,8 @@ if __name__ == '__main__':
     #rec.close()
 
     # Close IMU process
-    #proc.terminate()
-    testp.terminate()
+    proc.terminate()
+    #testp.terminate()
     """
     proc = Process(target=WheelSpeed, args=[])
     proc.start()
