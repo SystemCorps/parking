@@ -59,8 +59,8 @@ if __name__ == '__main__':
         #res = rec.readline()
 
         # Print FPS and IMU data
-        print(fps, xdps)
-        #print(fps, res)
+        #print(fps, xdps)
+        print(fps)
 
         # Show video stream
         cv2.imshow('frame', frame)
