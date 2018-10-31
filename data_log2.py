@@ -27,6 +27,20 @@ def WheelSpeed(lifo):
 
     rec.close()
 
+
+def imgSave(lifo):
+
+
+    while(1):
+        if lifo.empty() == False:
+            img_cnt, img, vel = lifo.get()
+            filedir = "/Users/astra/Documents/parking_img/img%d~%.1f.png" % (img_cnt, vel)
+            cv2.imwrite(filename=filedir, img=img)
+
+
+
+
+
 """
 def test(q):
     testing = 1
@@ -47,8 +61,9 @@ if __name__ == '__main__':
 
     # Set camera
     cap = cv2.VideoCapture(0)
-    # Set IMU sensor
-    #rec = ser.Serial("/dev/tty.SLAB_USBtoUART", 921600)
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter("/Users/astra/Documents/parking_img/test.avi", fourcc, 30, (640,360))
+
     # For calculating FPS
     prevTime = 0
 
@@ -57,17 +72,25 @@ if __name__ == '__main__':
     manager.start()
     lifo = manager.LifoQueue()
 
+    # For data saving
+    slifo = manager.LifoQueue()
+
     # For IMU data reading (multiprocess)
     proc = Process(target=WheelSpeed, args=[lifo, ])
     proc.start()
 
-
+    #sproc = Process(target=imgSave, args=[slifo, ])
+    #sproc.start()
     #testp = Process(target=test, args=[lifo, ])
     #testp.start()
     # Video capture & IMU reading loop
-    while(True):
+    img_cnt = 0
+    while(cap.isOpened()):
         # Read image
         ret, frame = cap.read()
+
+        out.write(frame)
+
 
         # For FPS
         curTime = time.time()
@@ -84,11 +107,16 @@ if __name__ == '__main__':
 
         print(fps)
         fromq1 = lifo.get()
+
+
         #fromq2 = lifo.get()
         print("From queue: ",fromq1)
 
         # Show video stream
         cv2.imshow('frame', frame)
+
+        #slifo.put([img_cnt, frame, fromq1[0]])
+        img_cnt=img_cnt+1
         # Finishing loop when 'q' pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -99,7 +127,16 @@ if __name__ == '__main__':
 
     # Close IMU process
     proc.terminate()
+    #sproc.terminate()
     #testp.terminate()
+
+    """
+    while(slifo.empty()==False):
+        cnt, img, vel = slifo.get()
+        filedir = "/Users/astra/Documents/parking_img/img%d~%.1f.png" % (cnt, vel)
+        cv2.imwrite(filename=filedir, img=img)
+    """
+
     """
     proc = Process(target=WheelSpeed, args=[])
     proc.start()
